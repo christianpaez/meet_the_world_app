@@ -30,7 +30,7 @@ function MainFooter() {
           <div className="credits mx-auto">
             <span className="text-dark"><b>
               © {new Date().getFullYear()} {" "}
-              <i className="fa fa-globe " /> Christian Páez</b>
+              <i className="fa fa-globe" /> Christian Páez</b>
             </span>
           </div>
         </Row>

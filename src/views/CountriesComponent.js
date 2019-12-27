@@ -19,7 +19,7 @@ import {
 import ServerModal from './ServerModal';
 import CountryModal from './CountryModal';
 import Lottie from 'react-lottie';
-import COUNTRIES_API_URL from '../services/config';
+import {COUNTRIES_API_URL} from '../services/config';
 
 function CountriesComponent() {
 
