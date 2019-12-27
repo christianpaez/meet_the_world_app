@@ -16,6 +16,7 @@ import {
   Row,
   Col
 } from "reactstrap";
+import ServerModal from './ServerModal'
 import Lottie from 'react-lottie';
 import COUNTRIES_API_URL from '../services/config';
 
@@ -23,25 +24,38 @@ function CountriesComponent() {
 
     const [countries, setCountries] = useState([]);
     const [serverLoading, setServerLoading] = useState(false);
-
+    const [filterOption, setFilterOption] = useState("all");
+    const [searchParams, setSearchParams] = useState("");
+    const [serverModal, setServerModal] = React.useState(false);
+  
     useEffect(() => {
       });
     
     // API request get all countries
     const getAllCountries = ()=>{
         setServerLoading(true);
+        var requestUrl = `${filterOption}/${searchParams}`
+        if(filterOption === "all"){
+            requestUrl ='all?fields=name;capital;currencies;region;flag;languages'
+        }
         axios({
             method: 'get',
-            url:`${COUNTRIES_API_URL}/all?fields=name;capital;currencies;region;flag;languages`
+            url:`${COUNTRIES_API_URL}/${requestUrl}`
         })
         .then((response)=> {
-            setCountries(response.data)
-            console.log(response)
+            if(response.data.length > 0){
+               setCountries(response.data)   
+            }
+            else {
+                console.log("0 results")
+                
+            }            
         })
         .catch((error)=>{
             if (error.response) {
                 // The request was made and the server responded with a status code
                 // that falls out of the range of 2xx
+                setServerModal(true)
                 console.log(error.response.data);
                 console.log(error.response.status);
                 console.log(error.response.headers);
@@ -66,7 +80,29 @@ function CountriesComponent() {
 		rendererSettings: {
 			preserveAspectRatio: 'xMidYMid slice'
 		}
-	};
+    };
+
+    //onchange searchinput
+    const onChangeSearch = (event)=>{
+        setSearchParams(event.target.value)
+    }
+    //onchange select
+    const onChangeSelect = (event)=>{
+        setFilterOption(event.target.value)
+    }
+    //select filter options
+    const filterOptions = [
+        {name: "All", value: "all"},
+        {name: "Language", value: "lang", label: "Search by ISO 639-1 language code."},
+        {name: "Continent", value: "region"},
+        {name: "Name", value: "name"},
+        {name: "Capital City", value: "capital"},
+        {name: "Calling Code", value: "callingcode"},
+    ]
+    //server modal toggle
+    const toggleModal = () => {
+        setServerModal(!serverModal);
+      };
     return(
         <Container>
          <h2 className="title">Country Searcher</h2>
@@ -74,21 +110,39 @@ function CountriesComponent() {
                 <Row form className = "d-flex justify-content-center">
                     <Col md={3}>
                         <FormGroup>
-                            <Label className = "text-white" for="options_select">Filter Options</Label>
-                            <Input type="select" name="options_select" id="options_select">
-                                <option>All</option>
-                                <option>Language</option>
-                                <option>Continent</option>
-                                <option>Name</option>
-                                <option>Capital City</option>
-                                <option>Calling Code</option>
+                            <Label className = "text-white"
+                             for="options_select">Search Options</Label>
+                            <Input type="select" name="options_select"
+                             id="options_select"
+                             onChange= {(event)=> onChangeSelect(event)}
+                             value = {filterOption}>
+                                 {filterOptions.map(item => (
+                                    <option key={item.value} value={item.value}>
+                                    {item.name}
+                                    </option>
+                                ))}
                             </Input>
                         </FormGroup>
                     </Col>
+                    {filterOption !== "all" && <Col md={3}>
+                    <FormGroup>
+                        <Label className = "text-white" 
+                        for="search">Search</Label>
+                        <Input
+                        type="search"
+                        name="search"
+                        id="search"
+                        onChange = {(event)=> onChangeSearch(event)}
+                        placeholder="Enter you search params..."
+                        />
+                    </FormGroup>
+                        </Col>
+                    }
                     <Col md={3}>
-                        <FormGroup className = "align-middle">
+                        <FormGroup className = "">
                             <Button className="btn-round" color="primary" 
                                 outline style = {{marginTop: "1.8rem"}}
+                                disabled = {serverLoading}
                                 onClick = {()=> getAllCountries()}>
                                 <i className="fa fa-globe" />
                                 Search
@@ -146,6 +200,8 @@ function CountriesComponent() {
                             transform: 'translateX(-50%) translateY(-50%)',
                             top: '50%'
                         }}/>}
+                        <ServerModal isOpen = {serverModal}
+                                     toggleModal = {toggleModal} />
       </Container>
     );
 }
