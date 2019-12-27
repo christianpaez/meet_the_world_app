@@ -16,7 +16,8 @@ import {
   Row,
   Col
 } from "reactstrap";
-import ServerModal from './ServerModal'
+import ServerModal from './ServerModal';
+import CountryModal from './CountryModal';
 import Lottie from 'react-lottie';
 import COUNTRIES_API_URL from '../services/config';
 
@@ -27,6 +28,8 @@ function CountriesComponent() {
     const [filterOption, setFilterOption] = useState("all");
     const [searchParams, setSearchParams] = useState("");
     const [serverModal, setServerModal] = React.useState(false);
+    const [countryModal, setCountryModal] = React.useState(false);
+    const [countryData, setCountryData] = React.useState(null);
   
     useEffect(() => {
       });
@@ -36,20 +39,15 @@ function CountriesComponent() {
         setServerLoading(true);
         var requestUrl = `${filterOption}/${searchParams}`
         if(filterOption === "all"){
-            requestUrl ='all?fields=name;capital;currencies;region;flag;languages'
+            requestUrl ='all?fields=name;capital;currencies;region;flag;languages;alpha2Code'
         }
         axios({
             method: 'get',
             url:`${COUNTRIES_API_URL}/${requestUrl}`
         })
         .then((response)=> {
-            if(response.data.length > 0){
+            console.log(response)
                setCountries(response.data)   
-            }
-            else {
-                console.log("0 results")
-                
-            }            
         })
         .catch((error)=>{
             if (error.response) {
@@ -72,6 +70,43 @@ function CountriesComponent() {
         })
         .finally(()=> setServerLoading(false))
     }
+
+    //API server request country#show
+    const getCountry = (code) =>{
+        setServerLoading(true);
+        axios({
+            method: 'get',
+            url:`${COUNTRIES_API_URL}/alpha/${code}`
+        })
+        .then((response)=> {
+            console.log(response)
+            setCountryData(response.data)
+        })
+        .catch((error)=>{
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                setServerModal(true)
+                console.log(error.response.data);
+                console.log(error.response.status);
+                console.log(error.response.headers);
+              } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                console.log(error.request);
+              } else {
+                // Something happened in setting up the request that triggered an Error
+                console.log('Error', error.message);
+              }
+              console.log(error.config);
+        })
+        .finally(()=>{
+            setServerLoading(false); 
+            setCountryModal(true);
+        })
+
+    }
     //lottie loader options 
     const defaultOptions = {
 		loop: true,
@@ -93,7 +128,7 @@ function CountriesComponent() {
     //select filter options
     const filterOptions = [
         {name: "All", value: "all"},
-        {name: "Language", value: "lang", label: "Search by ISO 639-1 language code."},
+        {name: "Language", value: "lang"},
         {name: "Continent", value: "region"},
         {name: "Name", value: "name"},
         {name: "Capital City", value: "capital"},
@@ -103,6 +138,11 @@ function CountriesComponent() {
     const toggleModal = () => {
         setServerModal(!serverModal);
       };
+    //country modal toggle
+    const toggleCountryModal = () => {
+        setCountryModal(!countryModal);
+    };
+      
     return(
         <Container>
          <h2 className="title">Country Searcher</h2>
@@ -166,13 +206,11 @@ function CountriesComponent() {
                             </a>
                             </div>
                             <CardBody>
-                            <a href="#pablo" onClick={e => e.preventDefault()}>
                                 <div className="author">
                                 <CardTitle tag="h4">{element.name}</CardTitle>
                                 <h6 className="card-category">Capital City: {element.capital}</h6>
                                 <h6 className="card-category">Continent: {element.region}</h6>
                                 </div>
-                            </a>
                             <p className="card-description title-uppercase text-center">
                                 Languages:{element.languages.map((element, index)=> ` ${element.iso639_1}`)}
                             </p>
@@ -183,7 +221,7 @@ function CountriesComponent() {
                             <CardFooter className="text-center">
                             <Button
                                 className="btn  btn-success"
-                                onClick={e => e.preventDefault()}
+                                onClick={()=> getCountry(element.alpha2Code)}
                             >
                                 Check Details
                             </Button>
@@ -202,6 +240,10 @@ function CountriesComponent() {
                         }}/>}
                         <ServerModal isOpen = {serverModal}
                                      toggleModal = {toggleModal} />
+
+                        {countryData && <CountryModal isOpen = {countryModal}
+                        toggleModal = {toggleCountryModal}
+                        data = {countryData} />}
       </Container>
     );
 }
