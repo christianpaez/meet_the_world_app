@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from 'axios';
-
+import React, {  useState } from "react";
 // reactstrap components
 import {
   Button,
@@ -18,25 +16,31 @@ import {
 } from "reactstrap";
 import ServerModal from './ServerModal';
 import CountryModal from './CountryModal';
+import axios from 'axios';
+import Pagination from "react-pagination-js";
+import "react-pagination-js/dist/styles.css"; // import css
 import Lottie from 'react-lottie';
 import {COUNTRIES_API_URL} from '../services/config';
 
 function CountriesComponent() {
-
-    const [countries, setCountries] = useState([]);
+    //api requests hooks
     const [serverLoading, setServerLoading] = useState(false);
+    const [countries, setCountries] = useState([]);
     const [filterOption, setFilterOption] = useState("all");
     const [searchParams, setSearchParams] = useState("");
+    const [countryData, setCountryData] = React.useState(null);
+    //modals hooks
     const [serverModal, setServerModal] = React.useState(false);
     const [countryModal, setCountryModal] = React.useState(false);
-    const [countryData, setCountryData] = React.useState(null);
+    //pagination hooks and fields
+    const [page, setPage] = React.useState(1);
+    const pageSize = 9;
+    const [totalPages, setTotalPages] = React.useState(10);
   
-    useEffect(() => {
-      });
-    
     // API request get all countries
     const getAllCountries = ()=>{
         setServerLoading(true);
+        setPage(1);
         var requestUrl = `${filterOption}/${searchParams}`
         if(filterOption === "all"){
             requestUrl ='all?fields=name;capital;currencies;region;flag;languages;alpha2Code'
@@ -46,8 +50,8 @@ function CountriesComponent() {
             url:`${COUNTRIES_API_URL}/${requestUrl}`
         })
         .then((response)=> {
-            console.log(response)
-               setCountries(response.data)   
+               setCountries(response.data)
+               setTotalPages(response.data.length)
         })
         .catch((error)=>{
             if (error.response) {
@@ -79,8 +83,8 @@ function CountriesComponent() {
             url:`${COUNTRIES_API_URL}/alpha/${code}`
         })
         .then((response)=> {
-            console.log(response)
             setCountryData(response.data)
+            console.log(response)
         })
         .catch((error)=>{
             if (error.response) {
@@ -142,6 +146,11 @@ function CountriesComponent() {
     const toggleCountryModal = () => {
         setCountryModal(!countryModal);
     };
+
+    //pagination
+    const changeCurrentPage = (page)=>{
+        setPage(page)
+    }
       
     return(
         <Container>
@@ -192,8 +201,8 @@ function CountriesComponent() {
                 </Row>
             </Form>
         <Row>
-            {
-                countries.map((element, index)=>{
+            {countries.slice((page - 1) * pageSize, page * pageSize)
+                .map((element, index)=>{
                  return(     
                     <Col md="4" key= {index}>
                         <Card className="card-profile card-plain">
@@ -212,10 +221,10 @@ function CountriesComponent() {
                                 <h6 className="card-category">Continent: {element.region}</h6>
                                 </div>
                             <p className="card-description title-uppercase text-center">
-                                Languages:{element.languages.map((element, index)=> ` ${element.iso639_1}`)}
+                                Languages:{element.languages.map((element, index)=> element.iso639_1 && ` ${element.iso639_1}`)}
                             </p>
                             <p className="card-description text-center">
-                                Currencies:{element.currencies.map((element, index)=> ` ${element.code}`)}
+                                Currencies:{element.currencies.map((element, index)=> element.code && ` ${element.code}`)}
                             </p>
                             </CardBody>
                             <CardFooter className="text-center">
@@ -231,6 +240,16 @@ function CountriesComponent() {
                     )
                 })
             }
+            {/* PAGINATION COMPONENT */}
+           {countries.length > 0 && <Col md = {12}>
+            <Pagination
+                currentPage={page}
+                totalSize={totalPages}
+                sizePerPage={pageSize}
+                changeCurrentPage={changeCurrentPage}
+                theme="bootstrap"
+            />
+            </Col>}
         </Row>
             {serverLoading && <Lottie options={defaultOptions} height={300} width={300} style={{
                             position: 'absolute',

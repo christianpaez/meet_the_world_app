@@ -66,7 +66,7 @@ function MainNavbar() {
             title="Meet The World App"
             tag={Link}
           >
-            Meet The World App
+           <i className="fa fa-globe" /> Meet The World App
           </NavbarBrand>
         </div>
       </Container>

@@ -38,13 +38,13 @@ function CountryModal({isOpen, toggleModal, data}) {
                 <div className="modal-body">
                   <p><b>Full Name: </b> {data.name}</p>
                   <p><b>Subregion: </b> {data.subregion}</p>
-                  <p><b>Population: </b> {data.population}</p>
-                  <p><b>Alpha Code: </b> {data.alpha2Code}</p>
-                  <p><b>Top Level Domain: </b> {data.topLevelDomain.length === 0 ? "None" : data.topLevelDomain.map((element)=>` ${element}`)}</p>
-                  <p><b>Languages: </b> {data.languages.length === 0 ? "None" : data.languages.map((element)=>` ${element.name}`)}</p>
-                  <p><b>Borders: </b> {data.borders.length === 0 ? "None" : data.borders.map((element)=>` ${element}`)}</p>
+                  <p><b>Population: </b> {data.population.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p>
+                  <p><b>Alpha Code: </b> {data.alpha3Code}</p>
+                  <p><b>Top Level Domain: </b> {data.topLevelDomain.length === 0 ? "None" : data.topLevelDomain.map((element)=>element && ` ${element}`)}</p>
+                  <p><b>Languages: </b> {data.languages.length === 0 ? "None" : data.languages.map((element)=>element.name &&  ` ${element.name}`)}</p>
+                  <p><b>Borders: </b> {data.borders.length === 0 ? "None" : data.borders.map((element)=>element &&  ` ${element}`)}</p>
                   {/*GOOGLE MAP*/}
-                  <div style={{ height: '100vh', width: '100%' }}>
+                  <div style={{ height: '400px', width: '100%' }}>
                     <GoogleMapReact
                       bootstrapURLKeys={{ key: `${GOOGLE_API_KEY}`}}
                       defaultCenter={mapData.center}
