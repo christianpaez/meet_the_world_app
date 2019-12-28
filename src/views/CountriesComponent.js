@@ -84,7 +84,6 @@ function CountriesComponent() {
         })
         .then((response)=> {
             setCountryData(response.data)
-            console.log(response)
         })
         .catch((error)=>{
             if (error.response) {
@@ -229,7 +228,7 @@ function CountriesComponent() {
                             </CardBody>
                             <CardFooter className="text-center">
                             <Button
-                                className="btn  btn-success"
+                                className="btn  btn-primary"
                                 onClick={()=> getCountry(element.alpha2Code)}
                             >
                                 Check Details
