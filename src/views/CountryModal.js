@@ -17,7 +17,7 @@ function CountryModal({isOpen, toggleModal, data}) {
       },
       zoom: 6
     };
-    const MapMarker = ({ text }) => <div><i className="fa fa-map-marker" />{text}</div>;
+    const MapMarker = ({ text }) => <div><i className="fa fa-map-marker fa-2x" /></div>;
     return(
         <Modal isOpen={isOpen} toggle={toggleModal}>
                  <div className="modal-header">  
@@ -53,7 +53,6 @@ function CountryModal({isOpen, toggleModal, data}) {
                       <MapMarker
                         lat={data.latlng[0]}
                         lng={data.latlng[1]}
-                        text="Country Location"
                       />
                     </GoogleMapReact>
                   </div>
